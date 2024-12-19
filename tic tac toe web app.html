@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe</title>
+  <style>
+   /* General Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #edb55b, #f031a7);
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.container {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgb(27, 1, 93);
+  width: 320px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #ffeb3b;
+  text-shadow: 2px 2px 4px rgb(2, 55, 249);
+}
+
+/* Game Board */
+#game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.cell {
+  width: 90px;
+  height: 90px;
+  background: #f0ec14;
+  color: #ee300a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.cell:hover {
+  transform: scale(1.1);
+  background: #333333;
+}
+
+.cell.taken {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Status Text */
+#status {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 20px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Reset Button */
+button {
+  background: #ff5722;
+  color: #fff;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: #e64a19;
+  transform: scale(1.1);
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+/* Responsive Design */
+@media (max-width: 400px) {
+  .container {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .cell {
+    width: 80px;
+    height: 80px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  #status {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+  .yo{
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+}
+.yo{
+      font-size:1rem ;
+      color: #ebf597;
+      padding: 15px;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tic-Tac-Toe</h1>
+    <div id="game-board">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+    <div id="status"></div>
+    <button id="reset">Restart Game</button>
+    <footer><div class="yo"> DEVELOPED BY SOURAV</div></footer>
+  </div>
+  <script>
+    // Select DOM elements
+const cells = document.querySelectorAll('.cell');
+const statusText = document.getElementById('status');
+const resetButton = document.getElementById('reset');
+
+let board = ['', '', '', '', '', '', '', '', '']; // Game board state
+let currentPlayer = 'X'; // Current player
+let gameActive = true; // Game state
+const winningConditions = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
+  [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical
+  [0, 4, 8], [2, 4, 6]             // Diagonal
+];
+
+// Handle click on a cell
+function handleCellClick(event) {
+  const cell = event.target;
+  const cellIndex = cell.getAttribute('data-index');
+
+  // Ignore clicks if cell is taken or game is inactive
+  if (board[cellIndex] !== '' || !gameActive) return;
+
+  updateCell(cell, cellIndex);
+  checkResult();
+}
+
+// Update the cell with the player's marker
+function updateCell(cell, index) {
+  board[index] = currentPlayer;
+  cell.textContent = currentPlayer;
+  cell.classList.add('taken');
+}
+
+// Check for win or draw conditions
+function checkResult() {
+  const winner = checkWin();
+
+  if (winner) {
+    statusText.textContent = `Player ${currentPlayer} Wins! 🎉`;
+    highlightWinningCells(winner);
+    gameActive = false;
+  } else if (board.includes('') === false) {
+    statusText.textContent = "It's a Draw! 🤝";
+    gameActive = false;
+  } else {
+    switchPlayer();
+  }
+}
+
+// Check if the current player has won
+function checkWin() {
+  return winningConditions.find(condition => {
+    const [a, b, c] = condition;
+    return board[a] === currentPlayer &&
+           board[a] === board[b] &&
+           board[a] === board[c];
+  });
+}
+
+// Highlight the winning cells
+function highlightWinningCells(winningCondition) {
+  winningCondition.forEach(index => {
+    cells[index].style.backgroundColor = '#4CAF50';
+    cells[index].style.color = '#fff';
+  });
+}
+
+// Switch the current player
+function switchPlayer() {
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  statusText.textContent = `Player ${currentPlayer}'s Turn`;
+}
+
+// Reset the game to its initial state
+function resetGame() {
+  board = ['', '', '', '', '', '', '', '', ''];
+  currentPlayer = 'X';
+  gameActive = true;
+  statusText.textContent = `Player X's Turn`;
+
+  cells.forEach(cell => {
+    cell.textContent = '';
+    cell.classList.remove('taken');
+    cell.style.backgroundColor = '';
+    cell.style.color = '';
+  });
+}
+
+// Attach event listeners
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+resetButton.addEventListener('click', resetGame);
+
+  </script>
+</body>
+</html>
